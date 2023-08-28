@@ -1,9 +1,6 @@
 import re
-
-from money import Money
-
-from data import Transaction, Posting, Amount
 import datetime
+from scripts.data import Transaction, Posting, Amount
 
 
 class FileParser:
@@ -84,7 +81,3 @@ class FileParser:
         while self.index < len(self.lines):
             self.parse_line()
             self.next_line()
-
-
-file_parser = FileParser("../ledger-sample-files/Income.ledger")
-file_parser.parse()

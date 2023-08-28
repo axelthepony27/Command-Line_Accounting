@@ -2,8 +2,6 @@ import datetime
 import decimal
 import re
 
-from moneyed import Money
-
 
 class Amount:
     currency_dict = {
