@@ -8,6 +8,7 @@ from moneyed import Money
 class Amount:
     currency_dict = {
         "USD": "$",
+        "GBP": "£"
     }
 
     def __init__(self, quantity: decimal.Decimal | str | int, commodity: str, is_currency: bool = False):
@@ -60,13 +61,12 @@ class Amount:
 
 
 class Posting:
-
-    def __init__(self, account: str, quantity: Money):
+    def __init__(self, account: str, amount: Amount):
         self.account = account
-        self.quantity = quantity
+        self.amount = amount
 
     def description(self):
-        return f"{self.account}    {self.quantity}"
+        return f"{self.account}    {self.amount.format()}"
 
 
 class Transaction:
@@ -86,12 +86,12 @@ class Transaction:
             return f"{self.date}    {self.payee} No postings"
 
 
-posting1 = Posting("Expenses:Food", Money(20, 'USD'))
-posting2 = Posting("Assets:Checking", Money(-20, "GBP"))
+posting1 = Posting("Expenses:Food", Amount(20, 'USD', True))
+posting2 = Posting("Assets:Checking", Amount(-20, "GBP", True))
 txn = Transaction(datetime.date.today(), "Awesome Food Payee", [posting1, posting2])
 txn2 = Transaction(datetime.date.today(), "Another awesome payee")
 
-# print(txn.description())
+print(txn.description())
 # print()
 # print(Amount.get_symbol_from_name("USD"))
 # print(Amount.get_name_from_symbol("$"))
