@@ -1,6 +1,6 @@
 import re
 import datetime
-from scripts.data import Transaction, Posting, Amount
+from data import Transaction, Posting, Amount
 
 
 class FileParser:
@@ -9,6 +9,7 @@ class FileParser:
         self.index = 0
         self.current_line = self.lines[self.index]
         self.state = "DEFAULT"
+        self.transactions = []
 
     @staticmethod
     def read(filename):
@@ -37,7 +38,7 @@ class FileParser:
         match self.state:
             case "TRANSACTION":
                 txn = self.parse_transaction()
-                print(txn.description())
+                self.transactions.append(txn)
             case "COMMENT":
                 print("We are now inside a comment")
             case "COMMODITY":
