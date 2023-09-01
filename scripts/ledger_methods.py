@@ -122,7 +122,24 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
             else:
                 print("------- FAILED TO PRINT REPORT -------")
         case "REGISTER":
-            pass
+            transactions = parser.transactions
+            accounts = build_accounts(transactions)
+            if account_names:
+                temp = Tree()
+                temp.create_node(tag="root", identifier="root")
+                for account_name in account_names:
+                    if accounts.contains(account_name) and not temp.contains(account_name):
+                        temp.paste("root", accounts.subtree(account_name))
+                if temp.size() > 1:
+                    accounts = temp
+            if balance(transactions):
+                running_total = Amount.parse("$0")
+                for txn in transactions:
+                    running_total.quantity += txn.postings[0].amount.quantity
+                    print(f"{str(txn.date)}  {txn.payee}  {txn.postings[0].account}  {txn.postings[0].amount.format()}  {running_total.format()}")
+                    for posting in txn.postings[1:]:
+                        running_total.quantity += posting.amount.quantity
+                        print(f"                                           {posting.account}  {posting.amount.format()}  {running_total.format()}")
         case "PRINT":
             for txn in parser.transactions:
                 print(txn.description())
@@ -131,5 +148,5 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
 filename = "../ledger-sample-files/Income.ledger"
 parser = FileParser(filename)
 parser.parse()
-report(parser, "BALANCE")
+report(parser, "REGISTER")
 # reporter.report("PRINT")
