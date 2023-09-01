@@ -87,7 +87,7 @@ class Transaction:
         x = ""
         if self.postings is not None:
             for posting in self.postings:
-                x += posting.description() + "\n"
+                x += "  " + posting.description() + "\n"
             return f"{self.date}    {self.payee} \n{x}"
         else:
             return f"{self.date}    {self.payee} No postings"
@@ -118,17 +118,3 @@ posting1 = Posting("Expenses:Food", Amount(20, 'USD', True))
 posting2 = Posting("Assets:Checking", Amount(-20, "GBP", True))
 txn = Transaction(datetime.date.today(), "Awesome Food Payee", [posting1, posting2])
 txn2 = Transaction(datetime.date.today(), "Another awesome payee")
-
-# print(txn.description())
-# print()
-# print(Amount.get_symbol_from_name("USD"))
-# print(Amount.get_name_from_symbol("$"))
-# print(Amount.parse("-20 BTC").description())
-# print("-----")
-# amount = Amount.parse("$20")
-# print(amount.description())
-# amount2 = Amount.parse("-$20")
-# print(amount2.description())
-# print("-----")
-# amount3 = Amount(-20, "USD", True)
-# print(amount3.format())

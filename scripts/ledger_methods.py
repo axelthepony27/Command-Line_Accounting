@@ -1,6 +1,9 @@
+import decimal
+
 from text_parser import FileParser
 from data import Transaction, Amount, Posting
 from treelib import Tree
+from decimal import Decimal
 
 
 class Reporter:
@@ -20,16 +23,24 @@ class Reporter:
                     parent = None
                     if i > 0:
                         parent = account_names[i - 1]
-                    self.add_account(account, parent)
+                    if posting.amount is None:
+                        self.add_account(account=account, parent=parent)
+                    else:
+                        self.add_account(account=account, data=posting.amount, parent=parent)
 
-    def add_account(self, account: str, parent: str = None):
+    def add_account(self, account: str, data: Amount = None, parent: str = None):
         if self.accounts.contains(account.lower()):
-            return
+            if data is None:
+                return
+            else:
+                self.accounts.get_node(account.lower()).data.quantity = (
+                        self.accounts.get_node(account.lower()).data.quantity + data.quantity)
+                return
         if parent is None:
-            self.accounts.create_node(tag=account, identifier=account.lower(), parent="root")
+            self.accounts.create_node(tag=account, identifier=account.lower(), parent="root", data=data)
             return
         if self.accounts.contains(parent.lower()):
-            self.accounts.create_node(tag=account, identifier=account.lower(), parent=parent.lower())
+            self.accounts.create_node(tag=account, identifier=account.lower(), parent=parent.lower(), data=data)
             return
 
     @staticmethod
@@ -51,15 +62,16 @@ class Reporter:
                                                .amount.is_currency)
             return True
 
-    def balance_txn(self, txn: Transaction):
-        #balanced = True
-        #print(txn.get_commodities())
-        #for commodity in txn.get_commodities():
+    @staticmethod
+    def balance_txn(txn: Transaction):
+        # balanced = True
+        # print(txn.get_commodities())
+        # for commodity in txn.get_commodities():
         #    balanced = balanced and self.balance_txn_per_commodity(txn, commodity)
 
         total = 0
         elided = []
-        #postings = txn.filter_per_commodity(commodity)
+        # postings = txn.filter_per_commodity(commodity)
         postings = txn.postings
         for posting in postings:
             if posting.amount is None:
@@ -76,13 +88,30 @@ class Reporter:
             return True
 
     def balance(self):
-        report = []
         txn: Transaction
         for txn in self.parser.transactions:
-            print(txn.description())
-            print("Balanced: " + str(self.balance_txn(txn)))
-            print("--------------------------")
+            # print(txn.description())
+            if not self.balance_txn(txn):
+                print("The following transaction is not balanced!")
+                print(txn.description())
+                return False
+        self.report("BALANCE")
+        return True
+
+    def report(self, report_type: str):
+        match report_type:
+            case "BALANCE":
+                total = Amount.parse("$0")
+                for account in self.accounts.all_nodes():
+                    if account.data is None:
+                        account.data = Amount.parse("$0")
+                    if account.tag != "root":
+                        print(account.data.format() + " " + account.tag)
+                        if account.is_leaf():
+                            total.quantity += account.data.quantity
+                print("----------")
+                print(total.format())
 
 
-reporter = Reporter("../ledger-sample-files/Bitcoin.ledger")
+reporter = Reporter("../ledger-sample-files/Income.ledger")
 reporter.balance()
