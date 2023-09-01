@@ -42,7 +42,7 @@ class FileParser:
                 txn = self.parse_transaction()
                 self.transactions.append(txn)
             case "COMMENT":
-                print("We are now inside a comment")
+                return
             case "COMMODITY":
                 print("We are now inside a commodity")
             case "INCLUDE":
@@ -90,6 +90,6 @@ class FileParser:
 
     def include_file(self):
         split_line = self.current_line.split()
-        path = "../ledger-sample-files/" + split_line[1]
+        path = "./ledger-sample-files/" + split_line[1]
         self.lines.extend(self.read(path))
         return

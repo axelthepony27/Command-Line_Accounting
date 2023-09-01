@@ -15,7 +15,7 @@ def build_accounts(transactions: list[Transaction]):
                 if i > 0:
                     parent = account_names[i - 1]
                 if posting.amount is None:
-                    add_account(account=account, accounts=accounts, parent=parent)
+                    add_account(account=account, accounts=accounts, data=Amount.parse("$0"), parent=parent)
                 else:
                     add_account(account=account, accounts=accounts, data=posting.amount, parent=parent, )
     return accounts
@@ -26,6 +26,7 @@ def add_account(account: str, accounts: Tree, data: Amount = None, parent: str =
         if data is None:
             return
         else:
+            # print(accounts.get_node(account.lower()))
             accounts.get_node(account.lower()).data.quantity = (
                     accounts.get_node(account.lower()).data.quantity + data.quantity)
             return
@@ -142,7 +143,8 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
                 print(txn.description())
 
 
-filename = "../ledger-sample-files/index.ledger"
-parser = FileParser(filename)
-parser.parse()
-report(parser, "REGISTER")
+#filename = "./ledger-sample-files/index.ledger"
+#parser = FileParser(filename)
+#parser.parse()
+#print(*parser.lines)
+#report(parser, "BALANCE")
