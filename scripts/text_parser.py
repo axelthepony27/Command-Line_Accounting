@@ -50,13 +50,13 @@ class FileParser:
         split_line = self.current_line.split(" ", 1)
         date_list = split_line[0].split("/")
         date = datetime.date(int(date_list[0]), int(date_list[1]), int(date_list[2]))
-        txn = Transaction(date, split_line[1])
+        txn = Transaction(date, split_line[1].strip())
 
         postings = []
         flag = True
         while flag:
-            if self.index+1 < len(self.lines):
-                next_line = self.lines[self.index+1]
+            if self.index + 1 < len(self.lines):
+                next_line = self.lines[self.index + 1]
                 if re.search('^\s', next_line):
                     self.next_line()
                     postings.append(self.parse_posting())
@@ -72,11 +72,12 @@ class FileParser:
         return txn
 
     def parse_posting(self):
-        posting_elements = re.split(r'\s{2,}', self.current_line)
+        # Split on 2 whitespaces or tab. Strip of first withespace first
+        posting_elements = re.split(r'\s{2,}|\t', self.current_line.lstrip())
         if len(posting_elements) == 1:
-            return Posting(posting_elements[0])
+            return Posting(posting_elements[0].strip())
         else:
-            return Posting(posting_elements[0], Amount.parse(posting_elements[1]))
+            return Posting(posting_elements[0].strip(), Amount.parse(posting_elements[1]))
 
     def parse(self):
         while self.index < len(self.lines):
