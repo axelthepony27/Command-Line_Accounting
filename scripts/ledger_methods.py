@@ -90,28 +90,29 @@ class Reporter:
     def balance(self):
         txn: Transaction
         for txn in self.parser.transactions:
-            # print(txn.description())
             if not self.balance_txn(txn):
                 print("The following transaction is not balanced!")
                 print(txn.description())
                 return False
-        self.report("BALANCE")
         return True
 
     def report(self, report_type: str):
         match report_type:
             case "BALANCE":
-                total = Amount.parse("$0")
-                for account in self.accounts.all_nodes():
-                    if account.data is None:
-                        account.data = Amount.parse("$0")
-                    if account.tag != "root":
-                        print(account.data.format() + " " + account.tag)
-                        if account.is_leaf():
-                            total.quantity += account.data.quantity
-                print("----------")
-                print(total.format())
+                if self.balance():
+                    total = Amount.parse("$0")
+                    for account in self.accounts.all_nodes():
+                        if account.data is None:
+                            account.data = Amount.parse("$0")
+                        if account.tag != "root":
+                            print(account.data.format() + " " + account.tag)
+                            if account.is_leaf():
+                                total.quantity += account.data.quantity
+                    print("----------")
+                    print(total.format())
+                else:
+                    print("------- FAILED TO PRINT REPORT -------")
 
 
 reporter = Reporter("../ledger-sample-files/Income.ledger")
-reporter.balance()
+reporter.report("BALANCE")
