@@ -99,12 +99,23 @@ class Transaction:
                 commodities.append(posting.amount.commodity)
         return commodities
 
-    def filter_per_commodity(self, commodity: str):
+    def filter_by_commodity(self, commodity: str):
         filtered_postings = []
         for posting in self.postings:
             if posting.amount is not None and posting.amount.commodity == commodity:
                 filtered_postings.append(posting)
         return filtered_postings
+
+    def filter_by_accounts(self, account_names: list[str] = None):
+        if account_names is None:
+            return self.postings
+        else:
+            postings = []
+            for posting in self.postings:
+                for account_name in account_names:
+                    if account_name in posting.account.lower():
+                        postings.append(posting)
+            return postings
 
     def to_string(self):
         print(f"Date: {self.date}")
@@ -113,8 +124,3 @@ class Transaction:
         for posting in self.postings:
             posting.to_string()
 
-
-posting1 = Posting("Expenses:Food", Amount(20, 'USD', True))
-posting2 = Posting("Assets:Checking", Amount(-20, "GBP", True))
-txn = Transaction(datetime.date.today(), "Awesome Food Payee", [posting1, posting2])
-txn2 = Transaction(datetime.date.today(), "Another awesome payee")

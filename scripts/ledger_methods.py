@@ -40,7 +40,7 @@ def add_account(account: str, accounts: Tree, data: Amount = None, parent: str =
 def balance_txn_per_commodity(txn: Transaction, commodity: str):
     total = 0
     elided = []
-    postings = txn.filter_per_commodity(commodity)
+    postings = txn.filter_by_commodity(commodity)
     for posting in postings:
         if posting.amount is None:
             elided.append(posting)
@@ -123,23 +123,16 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
                 print("------- FAILED TO PRINT REPORT -------")
         case "REGISTER":
             transactions = parser.transactions
-            accounts = build_accounts(transactions)
-            if account_names:
-                temp = Tree()
-                temp.create_node(tag="root", identifier="root")
-                for account_name in account_names:
-                    if accounts.contains(account_name) and not temp.contains(account_name):
-                        temp.paste("root", accounts.subtree(account_name))
-                if temp.size() > 1:
-                    accounts = temp
             if balance(transactions):
                 running_total = Amount.parse("$0")
                 for txn in transactions:
-                    running_total.quantity += txn.postings[0].amount.quantity
-                    print(f"{str(txn.date)}  {txn.payee}  {txn.postings[0].account}  {txn.postings[0].amount.format()}  {running_total.format()}")
-                    for posting in txn.postings[1:]:
-                        running_total.quantity += posting.amount.quantity
-                        print(f"                                           {posting.account}  {posting.amount.format()}  {running_total.format()}")
+                    postings = txn.filter_by_accounts(account_names)
+                    if postings:
+                        running_total.quantity += postings[0].amount.quantity
+                        print(f"{str(txn.date)}  {txn.payee}  {postings[0].account}  {postings[0].amount.format()}  {running_total.format()}")
+                        for posting in postings[1:]:
+                            running_total.quantity += posting.amount.quantity
+                            print(f"                                           {posting.account}  {posting.amount.format()}  {running_total.format()}")
         case "PRINT":
             for txn in parser.transactions:
                 print(txn.description())
@@ -148,5 +141,4 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
 filename = "../ledger-sample-files/Income.ledger"
 parser = FileParser(filename)
 parser.parse()
-report(parser, "REGISTER")
-# reporter.report("PRINT")
+report(parser, "REGISTER", ["clientx"])
