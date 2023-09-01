@@ -50,7 +50,14 @@ def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/inde
     if file.is_file():
         parser = FileParser(str(file))
         parser.parse()
-        report(parser, "REGISTER", accounts)
+        elements = report(parser, "REGISTER", accounts)
+        table = Table(box=None)
+        for element in elements:
+            table.add_row(f"[green]{element[0]}[/green]", element[1], f"[blue]{element[2]}[/blue]", element[3], element[4])
+        table.columns[3].justify = "right"
+        table.columns[4].justify = "right"
+        console = Console()
+        console.print(table)
     elif not file.exists():
         print("The requested file doesn't exist")
 

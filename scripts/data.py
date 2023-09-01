@@ -107,7 +107,7 @@ class Transaction:
         return filtered_postings
 
     def filter_by_accounts(self, account_names: list[str] = None):
-        if account_names is None:
+        if account_names is None or not account_names:
             return self.postings
         else:
             postings = []

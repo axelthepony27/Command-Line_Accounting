@@ -96,61 +96,65 @@ def filter_node(node: Node, account_names: list[str] = None):
         return True
 
 
+def balance_report(parser: FileParser, account_names: list[str] = None):
+    transactions = parser.transactions
+    accounts = build_accounts(transactions)
+    elements = []
+    if account_names:
+        temp = Tree()
+        temp.create_node(tag="root", identifier="root")
+        for account_name in account_names:
+            account_name = account_name.lower()
+            if accounts.contains(account_name) and not temp.contains(account_name):
+                temp.paste("root", accounts.subtree(account_name))
+        if temp.size() > 1:
+            accounts = temp
+    if balance(transactions):
+        total = Amount.parse("$0")
+        for account in accounts.all_nodes():
+            if account.data is None:
+                account.data = Amount.parse("$0")
+            if account.tag != "root":
+                elements.append([account.data.format(), account.tag])
+                if account.is_leaf():
+                    total.quantity += account.data.quantity
+        elements.append(["---------------", ""])
+        elements.append([total.format(), ""])
+        return elements
+    else:
+        print("------- FAILED TO PRINT REPORT -------")
+
+
+def register_report(parser: FileParser, account_names: list[str] = None):
+    transactions = parser.transactions
+    elements = []
+    if balance(transactions):
+        running_total = Amount.parse("$0")
+        for txn in transactions:
+            postings = txn.filter_by_accounts(account_names)
+            print(postings)
+            if postings:
+                running_total.quantity += postings[0].amount.quantity
+                elements.append([str(txn.date), txn.payee, postings[0].account, postings[0].amount.format(),
+                                 running_total.format()])
+                for posting in postings[1:]:
+                    running_total.quantity += posting.amount.quantity
+                    elements.append(["", "", posting.account, posting.amount.format(), running_total.format()])
+        return elements
+    else:
+        print("------- FAILED TO PRINT REPORT -------")
+
+
+def print_report(parser: FileParser):
+    for txn in parser.transactions:
+        print(txn.description())
+
+
 def report(parser: FileParser, report_type: str, account_names: list[str] = None):
     match report_type:
         case "BALANCE":
-            transactions = parser.transactions
-            accounts = build_accounts(transactions)
-            elements = []
-            if account_names:
-                temp = Tree()
-                temp.create_node(tag="root", identifier="root")
-                for account_name in account_names:
-                    account_name = account_name.lower()
-                    if accounts.contains(account_name) and not temp.contains(account_name):
-                        temp.paste("root", accounts.subtree(account_name))
-                if temp.size() > 1:
-                    accounts = temp
-            if balance(transactions):
-                total = Amount.parse("$0")
-                for account in accounts.all_nodes():
-                    if account.data is None:
-                        account.data = Amount.parse("$0")
-                    if account.tag != "root":
-                        # indent = ""
-                        # for i in range(accounts.rsearch(account)):
-                        #     indent += "  "
-                        elements.append([account.data.format(), account.tag])
-                        if account.is_leaf():
-                            total.quantity += account.data.quantity
-                elements.append(["---------------", ""])
-                elements.append([total.format(), ""])
-                return elements
-            else:
-                print("------- FAILED TO PRINT REPORT -------")
+            return balance_report(parser, account_names)
         case "REGISTER":
-            transactions = parser.transactions
-            elements = []
-            if balance(transactions):
-                running_total = Amount.parse("$0")
-                for txn in transactions:
-                    postings = txn.filter_by_accounts(account_names)
-                    if postings:
-                        running_total.quantity += postings[0].amount.quantity
-                        elements.append([str(txn.date), txn.payee, postings[0].account, postings[0].amount.format(),
-                                         running_total.format()])
-                        for posting in postings[1:]:
-                            running_total.quantity += posting.amount.quantity
-                            elements.append(["", "", posting.account, posting.amount.format(),  running_total.format()])
-                            return elements
-            else:
-                print("------- FAILED TO PRINT REPORT -------")
+            return register_report(parser, account_names)
         case "PRINT":
-            for txn in parser.transactions:
-                print(txn.description())
-
-# filename = "./ledger-sample-files/index.ledger"
-# parser = FileParser(filename)
-# parser.parse()
-# print(*parser.lines)
-# report(parser, "BALANCE")
+            print_report(parser)
