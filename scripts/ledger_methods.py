@@ -105,6 +105,7 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
                 temp = Tree()
                 temp.create_node(tag="root", identifier="root")
                 for account_name in account_names:
+                    account_name = account_name.lower()
                     if accounts.contains(account_name) and not temp.contains(account_name):
                         temp.paste("root", accounts.subtree(account_name))
                 if temp.size() > 1:
