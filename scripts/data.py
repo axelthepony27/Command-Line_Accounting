@@ -69,6 +69,12 @@ class Posting:
         else:
             return f"{self.account}    {self.amount.format()}"
 
+    def to_string(self):
+        if self.amount is None:
+            print("Account:: " + str(self.account) + "       Amount:: Elided")
+        else:
+            print("Account:: " + str(self.account) + "       Amount:: " + self.amount.format())
+
 
 class Transaction:
 
@@ -85,6 +91,27 @@ class Transaction:
             return f"{self.date}    {self.payee} \n{x}"
         else:
             return f"{self.date}    {self.payee} No postings"
+
+    def get_commodities(self):
+        commodities = []
+        for posting in self.postings:
+            if posting.amount is not None and not (commodities.__contains__(posting.amount.commodity)):
+                commodities.append(posting.amount.commodity)
+        return commodities
+
+    def filter_per_commodity(self, commodity: str):
+        filtered_postings = []
+        for posting in self.postings:
+            if posting.amount is not None and posting.amount.commodity == commodity:
+                filtered_postings.append(posting)
+        return filtered_postings
+
+    def to_string(self):
+        print(f"Date: {self.date}")
+        print(f"Payee: {self.payee}")
+        print("Postings:")
+        for posting in self.postings:
+            posting.to_string()
 
 
 posting1 = Posting("Expenses:Food", Amount(20, 'USD', True))
