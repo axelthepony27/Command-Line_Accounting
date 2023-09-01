@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from scripts.text_parser import FileParser
 from scripts.data import Transaction, Amount
 from treelib import Tree, Node
@@ -132,10 +134,10 @@ def register_report(parser: FileParser, account_names: list[str] = None):
         running_total = Amount.parse("$0")
         for txn in transactions:
             postings = txn.filter_by_accounts(account_names)
-            print(postings)
             if postings:
                 running_total.quantity += postings[0].amount.quantity
-                elements.append([str(txn.date), txn.payee, postings[0].account, postings[0].amount.format(),
+                new_date = datetime.strptime(str(txn.date), '%Y-%m-%d').strftime('%d-%b-%Y')
+                elements.append([new_date, txn.payee, postings[0].account, postings[0].amount.format(),
                                  running_total.format()])
                 for posting in postings[1:]:
                     running_total.quantity += posting.amount.quantity

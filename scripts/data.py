@@ -48,14 +48,18 @@ class Amount:
 
     def format(self):
         if not self.is_currency:
-            return f"{self.quantity} {self.commodity}"
+            if self.quantity >= 0:
+                return f"{self.quantity} {self.commodity}"
+            else:
+                return f"[red]{self.quantity} {self.commodity}[/red]"
         else:
             if self.quantity >= 0:
                 return "{symbol}{quantity:,.2f}".format(symbol=Amount.get_symbol_from_name(self.commodity),
                                                         quantity=self.quantity)
             else:
-                return "-{symbol}{quantity:,.2f}".format(symbol=Amount.get_symbol_from_name(self.commodity),
+                temp = "-{symbol}{quantity:,.2f}".format(symbol=Amount.get_symbol_from_name(self.commodity),
                                                          quantity=self.quantity.__abs__())
+                return f"[red]{temp}[/red]"
 
 
 class Posting:
