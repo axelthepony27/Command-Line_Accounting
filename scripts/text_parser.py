@@ -1,6 +1,6 @@
 import re
 import datetime
-from data import Transaction, Posting, Amount
+from scripts.data import Transaction, Posting, Amount
 
 
 class FileParser:
@@ -30,6 +30,8 @@ class FileParser:
             self.state = "COMMENT"
         elif re.search('^P', self.current_line):
             self.state = "COMMODITY"
+        elif re.search('^!', self.current_line):
+            self.state = "INCLUDE"
         else:
             self.state = "DEFAULT"
 
@@ -43,6 +45,8 @@ class FileParser:
                 print("We are now inside a comment")
             case "COMMODITY":
                 print("We are now inside a commodity")
+            case "INCLUDE":
+                self.include_file()
             case "DEFAULT":
                 print(self.current_line)
 
@@ -83,3 +87,9 @@ class FileParser:
         while self.index < len(self.lines):
             self.parse_line()
             self.next_line()
+
+    def include_file(self):
+        split_line = self.current_line.split()
+        path = "../ledger-sample-files/" + split_line[1]
+        self.lines.extend(self.read(path))
+        return

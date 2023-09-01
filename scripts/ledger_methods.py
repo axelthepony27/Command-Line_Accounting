@@ -1,5 +1,5 @@
-from text_parser import FileParser
-from data import Transaction, Amount
+from scripts.text_parser import FileParser
+from scripts.data import Transaction, Amount
 from treelib import Tree, Node
 
 
@@ -129,16 +129,20 @@ def report(parser: FileParser, report_type: str, account_names: list[str] = None
                     postings = txn.filter_by_accounts(account_names)
                     if postings:
                         running_total.quantity += postings[0].amount.quantity
-                        print(f"{str(txn.date)}  {txn.payee}  {postings[0].account}  {postings[0].amount.format()}  {running_total.format()}")
+                        print(
+                            f"{str(txn.date)}  {txn.payee}  {postings[0].account}  {postings[0].amount.format()}  "
+                            f"{running_total.format()}")
                         for posting in postings[1:]:
                             running_total.quantity += posting.amount.quantity
-                            print(f"                                           {posting.account}  {posting.amount.format()}  {running_total.format()}")
+                            print(
+                                f"                                           {posting.account}  "
+                                f"{posting.amount.format()}  {running_total.format()}")
         case "PRINT":
             for txn in parser.transactions:
                 print(txn.description())
 
 
-filename = "../ledger-sample-files/Income.ledger"
+filename = "../ledger-sample-files/index.ledger"
 parser = FileParser(filename)
 parser.parse()
-report(parser, "REGISTER", ["clientx"])
+report(parser, "REGISTER")
