@@ -61,17 +61,35 @@ class Amount:
                                                          quantity=self.quantity.__abs__())
                 return f"[red]{temp}[/red]"
 
+    def format_print(self):
+        if not self.is_currency:
+            if self.quantity >= 0:
+                return f"{self.quantity} {self.commodity}"
+            else:
+                return f"{self.quantity} {self.commodity}"
+        else:
+            if self.quantity >= 0:
+                return "{symbol}{quantity:,.2f}".format(symbol=Amount.get_symbol_from_name(self.commodity),
+                                                        quantity=self.quantity)
+            else:
+                temp = "-{symbol}{quantity:,.2f}".format(symbol=Amount.get_symbol_from_name(self.commodity),
+                                                         quantity=self.quantity.__abs__())
+                return f"{temp}"
+
 
 class Posting:
     def __init__(self, account: str, amount: Amount = None):
         self.account = account
         self.amount = amount
 
-    def description(self):
+    def description(self, is_print: bool):
         if self.amount is None:
             return f"{self.account}"
         else:
-            return f"{self.account}    {self.amount.format()}"
+            if is_print:
+                return f"{self.account}    {self.amount.format_print()}"
+            else:
+                return f"{self.account}    {self.amount.format()}"
 
     def to_string(self):
         if self.amount is None:
@@ -87,11 +105,11 @@ class Transaction:
         self.payee = payee
         self.postings = postings
 
-    def description(self):
+    def description(self, is_print: bool):
         x = ""
         if self.postings is not None:
             for posting in self.postings:
-                x += "  " + posting.description() + "\n"
+                x += "  " + posting.description(is_print) + "\n"
             return f"{self.date}    {self.payee} \n{x}"
         else:
             return f"{self.date}    {self.payee} No postings"

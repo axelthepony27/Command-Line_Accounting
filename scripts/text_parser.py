@@ -76,7 +76,6 @@ class FileParser:
         return txn
 
     def parse_posting(self):
-        # Split on 2 whitespaces or tab. Strip of first withespace first
         posting_elements = re.split(r'\s{2,}|\t', self.current_line.lstrip())
         if len(posting_elements) == 1:
             return Posting(posting_elements[0].strip())

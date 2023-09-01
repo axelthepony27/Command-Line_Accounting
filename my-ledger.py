@@ -32,12 +32,16 @@ def balance(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index
         if sort:
             parser.sort(sort)
         elements = report(parser, "BALANCE", accounts)
-        table = Table(box=None)
-        for element in elements:
-            table.add_row(element[0], f"[blue]{element[1]}[/blue]")
-        table.columns[0].justify = "right"
-        console = Console()
-        console.print(table)
+        if elements:
+            table = Table(box=None)
+            for element in elements:
+                table.add_row(element[0], f"[blue]{element[1]}[/blue]")
+            table.columns[0].justify = "right"
+            console = Console()
+            console.print(table)
+        else:
+            print("------- COULDN'T OUTPUT REPORT -------")
+            typer.Abort()
     elif not file.exists():
         print("The requested file doesn't exist exist")
 
@@ -57,14 +61,18 @@ def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/inde
         if sort:
             parser.sort(sort)
         elements = report(parser, "REGISTER", accounts)
-        table = Table(box=None)
-        for element in elements:
-            table.add_row(f"[green]{element[0]}[/green]", element[1], f"[blue]{element[2]}[/blue]",
-                          element[3], element[4])
-        table.columns[3].justify = "right"
-        table.columns[4].justify = "right"
-        console = Console()
-        console.print(table)
+        if elements:
+            table = Table(box=None)
+            for element in elements:
+                table.add_row(f"[green]{element[0]}[/green]", element[1], f"[blue]{element[2]}[/blue]",
+                              element[3], element[4])
+            table.columns[3].justify = "right"
+            table.columns[4].justify = "right"
+            console = Console()
+            console.print(table)
+        else:
+            print("------- COULDN'T OUTPUT REPORT -------")
+            typer.Abort()
     elif not file.exists():
         print("The requested file doesn't exist")
 

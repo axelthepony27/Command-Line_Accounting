@@ -60,14 +60,8 @@ def balance_txn_per_commodity(txn: Transaction, commodity: str):
 
 
 def balance_txn(txn: Transaction):
-    # balanced = True
-    # print(txn.get_commodities())
-    # for commodity in txn.get_commodities():
-    #    balanced = balanced and self.balance_txn_per_commodity(txn, commodity)
-
     total = 0
     elided = []
-    # postings = txn.filter_per_commodity(commodity)
     postings = txn.postings
     for posting in postings:
         if posting.amount is None:
@@ -124,7 +118,7 @@ def balance_report(parser: FileParser, account_names: list[str] = None):
         elements.append([total.format(), ""])
         return elements
     else:
-        print("------- FAILED TO PRINT REPORT -------")
+        return False
 
 
 def register_report(parser: FileParser, account_names: list[str] = None):
@@ -144,12 +138,12 @@ def register_report(parser: FileParser, account_names: list[str] = None):
                     elements.append(["", "", posting.account, posting.amount.format(), running_total.format()])
         return elements
     else:
-        print("------- FAILED TO PRINT REPORT -------")
+        return False
 
 
 def print_report(parser: FileParser):
     for txn in parser.transactions:
-        print(txn.description())
+        print(txn.description(is_print=True))
 
 
 def report(parser: FileParser, report_type: str, account_names: list[str] = None):
