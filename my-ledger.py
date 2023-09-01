@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
+
 from pathlib import Path
-from typing import Optional, List
 
 import typer
+from typing import Optional, List
 from typing_extensions import Annotated
+
+from rich import print
+from rich.console import Console
+from rich.table import Table
 
 from scripts.text_parser import FileParser
 from scripts.ledger_methods import report
+
 
 app = typer.Typer()
 
@@ -22,7 +28,13 @@ def balance(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index
     if file.is_file():
         parser = FileParser(str(file))
         parser.parse()
-        report(parser, "BALANCE", accounts)
+        elements = report(parser, "BALANCE", accounts)
+        table = Table(box=None)
+        for element in elements:
+            table.add_row(element[0], f"[blue]{element[1]}[/blue]")
+        table.columns[0].justify = "right"
+        console = Console()
+        console.print(table)
     elif not file.exists():
         print("The requested file doesn't exist exist")
 
@@ -40,7 +52,7 @@ def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/inde
         parser.parse()
         report(parser, "REGISTER", accounts)
     elif not file.exists():
-        print("The requested file doesn't exist exist")
+        print("The requested file doesn't exist")
 
 
 @app.command("print")
