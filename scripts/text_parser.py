@@ -93,3 +93,10 @@ class FileParser:
         path = "./ledger-sample-files/" + split_line[1]
         self.lines.extend(self.read(path))
         return
+
+    def sort(self, by_what: str):
+        match by_what:
+            case "d" | "date":
+                self.transactions.sort(key=lambda x: x.date)
+            case "p" | "payee":
+                self.transactions.sort(key=lambda x: x.payee)

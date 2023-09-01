@@ -19,7 +19,8 @@ app = typer.Typer()
 
 @app.command()
 def balance(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index.ledger",
-            accounts: Annotated[Optional[List[str]], typer.Argument()] = None):
+            accounts: Annotated[Optional[List[str]], typer.Argument()] = None,
+            sort: Annotated[str, typer.Option()] = "d"):
     """Find the balance of the selected file and accounts.
     Leave arguments blank to find the balances of all of your accounts."""
     if file is None:
@@ -28,6 +29,8 @@ def balance(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index
     if file.is_file():
         parser = FileParser(str(file))
         parser.parse()
+        if sort:
+            parser.sort(sort)
         elements = report(parser, "BALANCE", accounts)
         table = Table(box=None)
         for element in elements:
@@ -41,7 +44,8 @@ def balance(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index
 
 @app.command()
 def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index.ledger",
-             accounts: Annotated[Optional[List[str]], typer.Argument()] = None):
+             accounts: Annotated[Optional[List[str]], typer.Argument()] = None,
+             sort: Annotated[str, typer.Option()] = "d"):
     """Shows all transactions of selected file and accounts, and a running total.
     Leave arguments blank to find to show all of your transactions."""
     if file is None:
@@ -50,10 +54,13 @@ def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/inde
     if file.is_file():
         parser = FileParser(str(file))
         parser.parse()
+        if sort:
+            parser.sort(sort)
         elements = report(parser, "REGISTER", accounts)
         table = Table(box=None)
         for element in elements:
-            table.add_row(f"[green]{element[0]}[/green]", element[1], f"[blue]{element[2]}[/blue]", element[3], element[4])
+            table.add_row(f"[green]{element[0]}[/green]", element[1], f"[blue]{element[2]}[/blue]",
+                          element[3], element[4])
         table.columns[3].justify = "right"
         table.columns[4].justify = "right"
         console = Console()
@@ -63,7 +70,8 @@ def register(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/inde
 
 
 @app.command("print")
-def print_report(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index.ledger"):
+def print_report(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/index.ledger",
+                 sort: Annotated[str, typer.Option()] = "d"):
     """Prints out ledger transactions in a textual format that can be parsed by Ledger."""
     if file is None:
         print("No file")
@@ -71,6 +79,8 @@ def print_report(file: Annotated[Path, typer.Option()] = "./ledger-sample-files/
     if file.is_file():
         parser = FileParser(str(file))
         parser.parse()
+        if sort:
+            parser.sort(sort)
         report(parser, "PRINT")
     elif not file.exists():
         print("The requested file doesn't exist exist")
