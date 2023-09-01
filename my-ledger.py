@@ -11,39 +11,29 @@ app = typer.Typer()
 
 
 @app.command()
-def hello(name: str):
-    """Takes in a string, returns a salutation."""
-    print(f"Hello {name}")
-
-
-@app.command()
-def goodbye(name: str, formal: bool = False):
-    if formal:
-        print(f"Goodbye Ms. {name}. Have a good day.")
-    else:
-        print(f"Bye {name}!")
-
-
-@app.command()
 def balance(filename: Annotated[str, typer.Argument()] = "./ledger-sample-files/index.ledger"):
-    """Parses the given file."""
+    """Find the balance of the selected file and accounts.
+    Leave arguments blank to find the balances of all of your accounts."""
     parser = FileParser(filename)
     parser.parse()
     report(parser, "BALANCE")
 
 
 @app.command()
-def register(filename: str):
-    """Parses the given file."""
+def register(filename: Annotated[str, typer.Argument()] = "./ledger-sample-files/index.ledger"):
+    """Shows all transactions of selected file and accounts, and a running total.
+    Leave arguments blank to find to show all of your transactions."""
     parser = FileParser(filename)
     parser.parse()
+    report(parser, "REGISTER")
 
 
 @app.command()
-def print(filename: str):
-    """Parses the given file."""
+def print(filename: Annotated[str, typer.Argument()] = "./ledger-sample-files/index.ledger"):
+    """Prints out ledger transactions in a textual format that can be parsed by Ledger."""
     parser = FileParser(filename)
     parser.parse()
+    report(parser, "PRINT")
 
 
 if __name__ == "__main__":
