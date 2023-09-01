@@ -1,9 +1,8 @@
 import decimal
 
 from text_parser import FileParser
-from data import Transaction, Amount, Posting
+from data import Transaction, Amount
 from treelib import Tree
-from decimal import Decimal
 
 
 class Reporter:
@@ -112,7 +111,10 @@ class Reporter:
                     print(total.format())
                 else:
                     print("------- FAILED TO PRINT REPORT -------")
+            case "PRINT":
+                for txn in self.parser.transactions:
+                    print(txn.description())
 
 
 reporter = Reporter("../ledger-sample-files/Income.ledger")
-reporter.report("BALANCE")
+reporter.report("PRINT")
